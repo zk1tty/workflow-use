@@ -1,0 +1,45 @@
+{
+  "workflow_analysis": "The workflow demonstrates the process of using Grok on Twitter to draft and potentially post a tweet. The user navigates to Twitter, interacts with the Grok Assistant, and inputs a draft for a tweet. The input schema includes a required input for the tweet content. This accounts for the dynamic nature of the tweet's message, as the user's input defines the content.",
+  "name": "Tweet Draft and Post via Grok",
+  "description": "This workflow automates the process of drafting and posting a tweet using the Grok Assistant on Twitter.",
+  "version": "1.0",
+  "steps": [
+    {
+      "description": "Navigate to Twitter homepage.",
+      "output": null,
+      "timestamp": null,
+      "tabId": null,
+      "type": "navigation",
+      "url": "https://x.com/home"
+    },
+    {
+      "description": "Click on the Grok Assistant navigation link.",
+      "output": null,
+      "timestamp": null,
+      "tabId": null,
+      "type": "click",
+      "cssSelector": "span.css-1jxf684.r-bcqeeo.r-1ttztb7.r-qvutc0.r-poiln3",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/header[1]/div[1]/div[1]/div[1]/div[1]/div[2]/nav[1]/a[5]/div[1]/div[2]/span[1]",
+      "elementTag": "SPAN",
+      "elementText": "Grok"
+    },
+    {
+      "description": "Type the tweet content into the Grok assistant's text area.",
+      "output": null,
+      "timestamp": null,
+      "tabId": null,
+      "type": "input",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "value": "{tweet_content}",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "elementTag": "TEXTAREA"
+    }
+  ],
+  "input_schema": [
+    {
+      "name": "tweet_content",
+      "type": "string",
+      "required": true
+    }
+  ]
+}

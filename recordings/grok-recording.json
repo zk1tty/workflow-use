@@ -1,0 +1,313 @@
+{
+  "name": "Recorded Workflow",
+  "description": "Recorded on 6/12/2025, 5:24:24 AM",
+  "version": "1.0.0",
+  "input_schema": [],
+  "steps": [
+    {
+      "type": "navigation",
+      "timestamp": 1749677034731,
+      "tabId": 1857469214,
+      "url": "https://x.com/home"
+    },
+    {
+      "type": "navigation",
+      "timestamp": 1749677035083,
+      "tabId": 1857469214,
+      "url": "https://x.com/home"
+    },
+    {
+      "type": "navigation",
+      "timestamp": 1749677040592,
+      "tabId": 1857469214,
+      "url": "https://x.com/home"
+    },
+    {
+      "type": "click",
+      "timestamp": 1749677043796,
+      "tabId": 1857469214,
+      "url": "https://x.com/home",
+      "frameUrl": "https://x.com/home",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/header[1]/div[1]/div[1]/div[1]/div[1]/div[2]/nav[1]/a[5]/div[1]/div[2]/span[1]",
+      "cssSelector": "span.css-1jxf684.r-bcqeeo.r-1ttztb7.r-qvutc0.r-poiln3",
+      "elementTag": "SPAN",
+      "elementText": "Grok"
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677048243,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677048249,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "name tst "
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677048346,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677048347,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "name "
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677048449,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677048451,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": ""
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677048573,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677050530,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this is a test"
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677050941,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "navigation",
+      "timestamp": 1749677050944,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677050968,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this is a tes"
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677051464,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677051467,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this is a te"
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677051581,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677053740,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this is a typing test "
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677062608,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "navigation",
+      "timestamp": 1749677062611,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677062631,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this is a typing "
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677062714,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677062715,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this is a "
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677062773,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677062774,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this is "
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677062889,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677062890,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": "this "
+    },
+    {
+      "type": "key_press",
+      "timestamp": 1749677062984,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "key": "Backspace",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA"
+    },
+    {
+      "type": "input",
+      "timestamp": 1749677062986,
+      "tabId": 1857469214,
+      "url": "https://x.com/i/grok",
+      "frameUrl": "https://x.com/i/grok",
+      "xpath": "id(\"react-root\")/div[1]/div[1]/div[2]/main[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/div[1]/textarea[1]",
+      "cssSelector": "textarea.r-30o5oe.r-1dz5y72.r-1niwhzg.r-17gur6a.r-1yadl64.r-deolkf.r-poiln3.r-1ny4l3l.r-xyw6el.r-ea455c.r-13awgt0.r-ubezar.r-1exrs8c.r-k8qxaj.r-1knelpx.r-13qz1uu.r-fdjqy7[autocomplete=\"on\"][placeholder*=\"Ask anything\"]",
+      "elementTag": "TEXTAREA",
+      "value": ""
+    }
+  ]
+}
