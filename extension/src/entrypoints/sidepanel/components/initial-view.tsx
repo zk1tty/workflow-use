@@ -1,15 +1,18 @@
-import React from "react";
-import { useWorkflow } from "../context/workflow-provider";
-import { Button } from "@/components/ui/button"; // Reverted to alias path
+import React from 'react';
+import { useAuth } from '../context/auth-provider';
 
 export const InitialView: React.FC = () => {
-  const { startRecording } = useWorkflow();
+  const { signIn } = useAuth();
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-4">
-      <h2 className="text-lg font-semibold">Record a Workflow</h2>
-
-      <Button onClick={startRecording}>Start Recording</Button>
+    <div className="flex flex-col items-center justify-center h-full">
+      <h1 className="mb-4 text-xl">⏺️ Rebrowse Recorder</h1>
+      <button
+        className="bg-black text-white px-4 py-2 rounded"
+        onClick={signIn}
+      >
+        Sign in with Google
+      </button>
     </div>
   );
 };

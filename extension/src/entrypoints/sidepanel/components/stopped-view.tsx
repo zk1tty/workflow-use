@@ -39,7 +39,7 @@ export const StoppedView: React.FC = () => {
         <h2 className="text-lg font-semibold">Recording Finished</h2>
         <div className="space-x-2">
           <Button variant="outline" size="sm" onClick={discardAndStartNew}>
-            Discard & Start New
+            Start New
           </Button>
           <Button
             size="sm"
@@ -48,7 +48,7 @@ export const StoppedView: React.FC = () => {
               !workflow || !workflow.steps || workflow.steps.length === 0
             }
           >
-            Download JSON
+            🔗Sync Recording
           </Button>
         </div>
       </div>
