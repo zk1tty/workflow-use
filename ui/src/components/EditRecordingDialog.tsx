@@ -105,12 +105,28 @@ export function EditRecordingDialog({
   const handleSave = async () => {
     try {
       setIsBuilding(true);
+      
+      // Validate required fields before sending
+      if (!editedData.steps || editedData.steps.length === 0) {
+        toast({
+          title: '❌ Invalid Workflow Data',
+          description: 'No recorded steps found. Please record some actions first.',
+        });
+        return;
+      }
+      
+      // Prepare workflow data with proper defaults
+      const workflowData = {
+        ...editedData,
+        name: editedData.name || 'Untitled Workflow',
+        description: editedData.description || userPrompt || 'Auto-generated workflow',
+        version: editedData.version || '1.0.0',
+      };
+      
       const response = await workflowService.buildWorkflow(
         editedData.name,
         userPrompt,
-        {
-          ...editedData,
-        }
+        workflowData
       );
       if (response.success) {
         await fetchWorkflows();

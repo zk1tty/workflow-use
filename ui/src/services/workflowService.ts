@@ -69,7 +69,13 @@ class WorkflowServiceImpl implements WorkflowService {
     if (!response.data) {
       throw new Error('Failed to return data from server');
     }
-    return response.data;
+    
+    const data = response.data;
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to update workflow metadata');
+    }
+    
+    return data;
   }
 
   async updateWorkflow(
@@ -84,7 +90,13 @@ class WorkflowServiceImpl implements WorkflowService {
     if (!response.data) {
       throw new Error('Failed to return data from server');
     }
-    return response.data;
+    
+    const data = response.data;
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to update workflow');
+    }
+    
+    return data;
   }
 
   async deleteStep(workflowName: string, stepIndex: number): Promise<any> {
@@ -95,7 +107,13 @@ class WorkflowServiceImpl implements WorkflowService {
     if (!response.data) {
       throw new Error('Failed to return data from server');
     }
-    return response.data;
+    
+    const data = response.data;
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to delete step');
+    }
+    
+    return data;
   }
 
   async executeWorkflow(
@@ -128,7 +146,13 @@ class WorkflowServiceImpl implements WorkflowService {
     if (!response.data) {
       throw new Error('Failed to return data from server');
     }
-    return response.data;
+    
+    const data = response.data;
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to record workflow');
+    }
+    
+    return data;
   }
 
   async stopRecording(): Promise<any> {
@@ -138,7 +162,13 @@ class WorkflowServiceImpl implements WorkflowService {
     if (!response.data) {
       throw new Error('Failed to return data from server');
     }
-    return response.data;
+    
+    const data = response.data;
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to stop recording');
+    }
+    
+    return data;
   }
 
   async buildWorkflow(
@@ -152,10 +182,24 @@ class WorkflowServiceImpl implements WorkflowService {
         body: { name, prompt, workflow },
       }
     );
+    
+    // Handle HTTP errors (like 422 validation errors)
+    if (!response.response.ok) {
+      const status = response.response.status;
+      const statusText = response.response.statusText;
+      throw new Error(`Request failed with ${status} ${statusText}. Please check your workflow data.`);
+    }
+    
     if (!response.data) {
       throw new Error('Failed to return data from server');
     }
-    return response.data;
+    
+    const data = response.data;
+    if (!data.success) {
+      throw new Error(data.error || data.message || 'Failed to build workflow');
+    }
+    
+    return data;
   }
 
   async addWorkflow(name: string, content: string): Promise<void> {
