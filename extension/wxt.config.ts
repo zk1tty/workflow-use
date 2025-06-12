@@ -10,11 +10,16 @@ export default defineConfig({
   srcDir: "src",
   vite: () =>
     mergeConfig(baseViteConfig, {
-      // WXT-specific overrides (optional)
+      envPrefix: "VITE_",
     }),
   manifest: {
-    permissions: ["tabs", "sidePanel", "<all_urls>"],
-    host_permissions: ["http://127.0.0.1/*"],
+    // See https://developer.chrome.com/docs/extensions/mv3/declare_permissions/
+    permissions: ["storage", "sidePanel", "identity", "notifications", "tabs"],
+    host_permissions: [
+      "http://127.0.0.1:8000/*", // VITE_API_URL (backend)
+      "http://localhost:5173/*", // VITE_APP_ORIGIN (example)
+      "https://*.supabase.co/*",   // VITE_SUPABASE_URL
+    ],
     // options_page: "options.html",
     // action: {
     //   default_popup: "popup.html",

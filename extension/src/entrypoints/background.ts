@@ -22,6 +22,7 @@ import {
   HttpRecordingStoppedEvent,
   HttpWorkflowUpdateEvent,
 } from "../lib/message-bus-types";
+import { ensureAuth } from '../lib/auth';
 
 export default defineBackground(() => {
   // In-memory store for rrweb events, keyed by tabId
@@ -594,4 +595,42 @@ export default defineBackground(() => {
   chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: true })
     .catch((error) => console.error("Failed to set panel behavior:", error));
+
+  
+  // --- NEW: Auto-upload json to backend ---
+  chrome.runtime.onMessage.addListener(async (msg) => {
+    if (msg.type !== 'workflow:stopped') return;
+ 
+    try {
+     /* 1. get/refresh JWT */
+     const jwt = await ensureAuth();
+ 
+     /* 2. upload JSON trace */
+     const res = await fetch(`${import.meta.env.VITE_API_URL}/workflows`, {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+         'Authorization': `Bearer ${jwt}`,
+       },
+       body: JSON.stringify({ json: msg.data }),
+     });
+ 
+     if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+ 
+     const { id } = await res.json();
+ 
+     /* 3. open editor page */
+     chrome.tabs.create({
+       url: `${import.meta.env.VITE_APP_ORIGIN}/workflows/${id}`,
+     });
+    } catch (err) {
+      console.error('[workflow-use] upload failed:', err);
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'icon.png',
+        title: 'Workflow upload failed',
+        message: String(err),
+      });
+    }
+  });
 });
