@@ -1,9 +1,3 @@
-<picture>
-  <img alt="Workflow Use logo - a product by Browser Use." src="./static/workflow-use.png"  width="full">
-</picture>
-
-<br />
-
 <h1 align="center">Deterministic, Self Healing Workflows (RPA 2.0)</h1>
 
 [![GitHub stars](https://img.shields.io/github/stars/browser-use/workflow-use?style=social)](https://github.com/browser-use/workflow-use/stargazers)
