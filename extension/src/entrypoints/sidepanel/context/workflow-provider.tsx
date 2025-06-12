@@ -21,7 +21,7 @@ type WorkflowContextType = WorkflowState & {
   stopRecording: () => void;
   discardAndStartNew: () => void;
   selectEvent: (index: number) => void;
-  fetchWorkflowData: (isPolling?: boolean) => void; // Add optional flag
+  fetchWorkflowData: (isPolling?: boolean) => void;
 };
 
 const WorkflowContext = createContext<WorkflowContextType | undefined>(
@@ -43,67 +43,69 @@ export const WorkflowProvider: React.FC<WorkflowProviderProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWorkflowData = useCallback(async (isPolling: boolean = false) => {
+  const fetchWorkflowData = useCallback((isPolling: boolean = false) => {
     if (!isPolling) {
       setIsLoading(true);
     }
-    try {
-      const data = await chrome.runtime.sendMessage({
-        type: "GET_RECORDING_DATA",
-      });
-      console.log(
-        "Received workflow data from background (polling=" + isPolling + "):",
-        data
-      );
-      if (data && data.workflow && data.recordingStatus) {
-        // Always update workflow when fetching (polling or not)
-        setWorkflow(data.workflow);
 
-        // If NOT polling, update status and index based on fetched data
-        // If polling, we primarily rely on the broadcast message for status changes
-        if (!isPolling) {
-          setRecordingStatus(data.recordingStatus);
-          setCurrentEventIndex(
-            data.workflow.steps ? data.workflow.steps.length - 1 : 0
-          );
-        } else {
-          // If polling, ensure index is valid (e.g., after step deletion)
-          // Only adjust index based on current workflow state from polling
-          setCurrentEventIndex((prevIndex) =>
-            Math.min(prevIndex, (data.workflow.steps?.length || 1) - 1)
-          );
-          // Do NOT set recordingStatus from polling fetch, wait for broadcast message
+    let attempts = 0;
+    const ask = () => {
+      chrome.runtime.sendMessage({ type: "GET_RECORDING_DATA" }, (data) => {
+        if (chrome.runtime.lastError) {
+          if (
+            chrome.runtime.lastError.message &&
+            chrome.runtime.lastError.message.includes("closed") &&
+            attempts < 3
+          ) {
+            attempts += 1;
+            setTimeout(ask, 200); // retry after SW is ready
+            return;
+          }
+          console.warn("Initial status failed:", chrome.runtime.lastError);
+          if (!isPolling) {
+            setError(`Failed to load workflow data: ${chrome.runtime.lastError.message ?? 'Unknown error'}`);
+            setRecordingStatus("error");
+            setWorkflow(null);
+            setIsLoading(false);
+          }
+          return;
         }
-        // Clear error on successful fetch
-        setError(null);
-      } else {
-        console.warn(
-          "Received invalid/incomplete data structure from GET_RECORDING_DATA"
+
+        // On success:
+        console.log(
+          "Received workflow data from background (polling=" + isPolling + "):",
+          data
         );
-        if (!isPolling) {
-          setWorkflow(null);
-          setRecordingStatus("idle");
-          setCurrentEventIndex(0);
+        if (data && data.workflow && data.recordingStatus) {
+          setWorkflow(data.workflow);
+          if (!isPolling) {
+            setRecordingStatus(data.recordingStatus);
+            setCurrentEventIndex(
+              data.workflow.steps ? data.workflow.steps.length - 1 : 0
+            );
+          } else {
+            setCurrentEventIndex((prevIndex) =>
+              Math.min(prevIndex, (data.workflow.steps?.length || 1) - 1)
+            );
+          }
+          setError(null);
+        } else {
+          console.warn(
+            "Received invalid/incomplete data structure from GET_RECORDING_DATA"
+          );
+          if (!isPolling) {
+            setWorkflow(null);
+            setRecordingStatus("idle");
+            setCurrentEventIndex(0);
+          }
         }
-      }
-    } catch (err: any) {
-      console.error(
-        "Error fetching workflow data (polling=" + isPolling + "):",
-        err
-      );
-      // Only set error state if it wasn't a background poll error
-      // and the status isn't already error
-      if (!isPolling) {
-        setError(`Failed to load workflow data: ${err.message}`);
-        setRecordingStatus("error");
-        setWorkflow(null);
-      }
-    } finally {
-      if (!isPolling) {
-        setIsLoading(false);
-      }
-    }
-    // Remove state dependencies to stabilize the function reference
+        if (!isPolling) {
+          setIsLoading(false);
+        }
+      });
+    };
+
+    ask();
   }, []);
 
   useEffect(() => {
