@@ -1,98 +1,162 @@
 /**
  * auth.ts – Supabase auth helper for the workflow-use Chrome extension
  * --------------------------------------------------
- * • Tries to reuse a cached JWT from chrome.storage.sync
- * • Refreshes silently if token is ~expiring
- * • Falls back to interactive Google OAuth (chrome.identity) on first run
+ * This is the **single** source‑of‑truth auth helper used by background, popup &
+ * side‑panel.  It adds a pile of `console.info` statements so you can see the
+ * state‑machine step‑by‑step inside DevTools (☰ ▸ Extensions ▸ "service‑worker"
+ * or the side‑panel frame).
  * --------------------------------------------------
  */
 
-import { createClient } from '@supabase/supabase-js';
-import { decode } from 'js-base64';
+import { AuthClient } from "@supabase/auth-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// ────────────────────────────────────────────────────────────────────────────────
+// Single source‑of‑truth auth helper used by background, popup & side‑panel.
+// Adds *very* chatty console output so you can follow every branch.                
+// ────────────────────────────────────────────────────────────────────────────────
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: { persistSession: false },      // we'll manage storage ourselves
+const SUPABASE_URL = "https://dmgtsseqqsiyuuzhdxnn.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZ3Rzc2VxcXNpeXV1emhkeG5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3MzE4ODIsImV4cCI6MjA2NTMwNzg4Mn0.e5bQXtdRsPY31fEp2xextWC4QKYUcAvj77hEDVZHuZw";
+const JWT_KEY = "workflow‑use:jwt";
+
+// Slimmer bundle than the full Supabase client
+const supabase = new AuthClient({
+  url: `${SUPABASE_URL}/auth/v1`,
+  headers: { apikey: SUPABASE_ANON_KEY },
+  persistSession: false,
 });
 
-// Polyfill for atob
-globalThis.atob = decode;
+// ───────────────────────────────── helpers ─────────────────────────────────────
 
-/* ---------- private helpers ---------- */
-
-/** returns when the JWT expires, in seconds since epoch */
-function getExpiry(jwt: string) {
+function decodeExp(jwt: string): number {
   try {
-    const body = jwt.split('.')[1];
-    const decoded = JSON.parse(atob(body));
-    return decoded.exp as number;
+    const payload = JSON.parse(atob(jwt.split(".")[1]));
+    return payload.exp ?? 0;
   } catch {
     return 0;
   }
 }
 
-/** returns true if the JWT will expire in the next 30 seconds */
-function isExpiringSoon(jwt: string) {
-  const expiry = getExpiry(jwt);
+export function isExpired(jwt: string): boolean {
+  const exp = decodeExp(jwt);
   const now = Date.now() / 1000;
-  return expiry - now < 30;
+  return exp - now < 30; // treat "<30 s left" as already expired
 }
 
-const STORAGE_KEY = 'workflow-use:jwt';
-
-async function saveJwt(jwt: string) {
-  await chrome.storage.local.set({ [STORAGE_KEY]: jwt });
+async function storeJwt(token: string) {
+  await chrome.storage.local.set({ [JWT_KEY]: token });
+}
+export async function loadJwt(): Promise<string | undefined> {
+  const obj = await chrome.storage.local.get(JWT_KEY);
+  return obj[JWT_KEY];
 }
 
-async function loadJwt() {
-  const data = await chrome.storage.local.get(STORAGE_KEY);
-  return data[STORAGE_KEY] as (string | undefined);
+// helper so we can pick up chrome.runtime.lastError *reliably*
+function launchWebAuth(url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    chrome.identity.launchWebAuthFlow(
+      { url, interactive: true },
+      (redirectUri) => {
+        const err = chrome.runtime.lastError;
+        if (err) {
+          console.error("[auth] launchWebAuthFlow lastError →", err.message);
+          reject(err);
+          return;
+        }
+        if (!redirectUri) {
+          reject(new Error("launchWebAuthFlow returned empty redirect URI"));
+          return;
+        }
+        resolve(redirectUri);
+      }
+    );
+  });
 }
 
-/* ---------- public API ---------- */
+// ─────────────────────────────── ensureAuth() ──────────────────────────────────
 
-/** Ensures we have a valid JWT and returns it. Opens Google OAuth if needed. */
 export async function ensureAuth(): Promise<string> {
-  // 1) try cached
-  let jwt = await loadJwt();
-  if (jwt && !isExpiringSoon(jwt)) return jwt;
+  const started = Date.now();
+  console.info("[auth] ensureAuth() • start ─────────────────────────");
 
-  // 2) attempt silent refresh (if we have a refresh token in memory)
-  const { data: refresh } = await supabase.auth.refreshSession();
-  if (refresh.session?.access_token) {
-    jwt = refresh.session.access_token;
-    await saveJwt(jwt);
-    return jwt;
+  // 1. reuse stored token ──────────────────────────────────────────────
+  let token = await loadJwt();
+  console.info("[auth] stored JWT:", token?.slice(0, 8), "expired?", token ? isExpired(token) : "n/a");
+  if (token && !isExpired(token)) {
+    console.info("[auth] ✓ using stored token (still valid)");
+    console.info(`[auth] done in ${Date.now() - started} ms`);
+    return token;
   }
 
-  // 3) interactive Google sign-in
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: chrome.identity.getRedirectURL() },
-  });
-  if (error || !data?.url) throw error ?? new Error('OAuth URL missing');
+  // 2. silent refresh ─────────────────────────────────────────────────
+  try {
+    console.info("[auth] attempting refreshSession() …");
+    const { data, error } = await supabase.refreshSession();
+    console.info("[auth] refreshSession() result:", { hasSession: !!data?.session, error });
 
-  const redirectUri = await chrome.identity.launchWebAuthFlow({
-    url: data.url,
-    interactive: true,
-  });
+    const refreshed = data?.session?.access_token;
+    if (refreshed) {
+      console.info("[auth] ✓ got new token from refresh");
+      await storeJwt(refreshed);
+      console.info(`[auth] done in ${Date.now() - started} ms`);
+      return refreshed;
+    }
+    if (error) console.warn("[auth] refreshSession() error", error);
+  } catch (err) {
+    console.error("[auth] refreshSession() threw", err);
+  }
 
-  if (!redirectUri) throw new Error('OAuth flow failed: No redirect URI');
+  // 3. interactive OAuth ──────────────────────────────────────────────
+  const redirectUrl = chrome.identity.getRedirectURL();
+  console.info("[auth] starting OAuth flow – redirectURL:", redirectUrl);
 
-  // Supabase appends the session to the URL hash
-  const fragments = new URLSearchParams(redirectUri.split('#')[1]);
-  const newJwt = fragments.get('access_token');
-  if (!newJwt) throw new Error('access_token not returned from OAuth flow');
+  let oauthUrl: string;
+  try {
+    const { data: oauth, error: oauthErr } = await supabase.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: redirectUrl,
+        skipBrowserRedirect: true,
+      },
+    });
+    console.info("[auth] signInWithOAuth response:", { oauthErr, hasUrl: !!oauth?.url });
+    if (oauthErr || !oauth?.url) throw oauthErr ?? new Error("OAuth URL missing");
+    oauthUrl = oauth.url;
+  } catch (e) {
+    console.error("[auth] signInWithOAuth threw", e);
+    throw e;
+  }
 
-  // Store & return
-  await saveJwt(newJwt);
-  return newJwt;
+  console.info("[auth] launching chrome.identity.launchWebAuthFlow …");
+  let finalRedirect: string;
+  try {
+    console.info("[auth] opening URL →", oauthUrl);
+    finalRedirect = await launchWebAuth(oauthUrl);
+  } catch (e) {
+    console.error("[auth] launchWebAuthFlow threw/lastError", e);
+    throw e;
+  }
+  console.info("[auth] launchWebAuthFlow returned:", finalRedirect?.slice(0, 120));
+
+  const qs = finalRedirect.split("#")[1] ?? "";
+  const accessToken = new URLSearchParams(qs).get("access_token");
+  console.info("[auth] extracted access_token:", accessToken?.slice(0, 8));
+  if (!accessToken) throw new Error("access_token not returned from OAuth flow");
+
+  await storeJwt(accessToken);
+  console.info("[auth] token stored – broadcasting AUTH_SUCCESS …");
+  chrome.runtime.sendMessage({ type: "AUTH_SUCCESS" }).catch(() => {});
+
+  console.info(`[auth] ensureAuth() • done in ${Date.now() - started} ms`);
+
+  // 4. token is stored at chrome.storage.
+  return accessToken;
 }
 
-/** Sign the user out (optional button in side-panel) */
-export async function signOut() {
-  await supabase.auth.signOut();
-  await chrome.storage.local.remove(STORAGE_KEY);
-} 
+export function signOut() {
+  console.info("[auth] signOut() called – clearing storage");
+  return chrome.storage.local.remove(JWT_KEY);
+}
+
+export const authClient = supabase;   // 👈 new — share the live instance

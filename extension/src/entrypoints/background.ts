@@ -22,7 +22,7 @@ import {
   HttpRecordingStoppedEvent,
   HttpWorkflowUpdateEvent,
 } from "../lib/message-bus-types";
-import { ensureAuth } from '../lib/auth';
+import { ensureAuth } from '@lib/auth';
 
 export default defineBackground(() => {
   // In-memory store for rrweb events, keyed by tabId
@@ -34,7 +34,7 @@ export default defineBackground(() => {
   let isRecordingEnabled = true; // Default to disabled (OFF)
   let lastWorkflowHash: string | null = null; // Cache for the last logged workflow hash
 
-  const PYTHON_SERVER_ENDPOINT = "http://127.0.0.1:7331/event";
+  const PYTHON_SERVER_ENDPOINT = "http://127.0.0.1:8000/event";
 
   // Hashing function using SubtleCrypto (SHA-256)
   async function calculateSHA256(str: string): Promise<string> {
@@ -531,10 +531,15 @@ export default defineBackground(() => {
       console.log(
         `Sending initial status (${isRecordingEnabled}) to tab ${sender.tab.id}`
       );
-      sendResponse({ isRecordingEnabled });
+      // This response must be sent async, and we must return true to
+      // keep the message channel open for the sendResponse call.
+      setTimeout(() => {
+        sendResponse({ isRecordingEnabled });
+      }, 50);
+      return true; // Keep message port open for async response
     }
 
-    // --- Removed Handlers ---
+    // --- TODO: Removed Handlers ---
     // else if (message.type === "CLEAR_RECORDING_DATA") { ... } // Now handled by START_RECORDING
     // else if (message.type === "GET_RECORDING_STATUS") { ... } // Sidepanel uses GET_RECORDING_DATA
     // else if (message.type === "TOGGLE_RECORDING") { ... } // Replaced by START/STOP
@@ -597,40 +602,46 @@ export default defineBackground(() => {
     .catch((error) => console.error("Failed to set panel behavior:", error));
 
   
-  // --- NEW: Auto-upload json to backend ---
+  // --- NEW: Upload JSON to backend when we receive the STOP_RECORDING event ---
   chrome.runtime.onMessage.addListener(async (msg) => {
-    if (msg.type !== 'workflow:stopped') return;
+    // the side-panel sends this when the user clicks "Download JSON"
+    if (msg.type !== 'STOP_RECORDING') return;
  
     try {
-     /* 1. get/refresh JWT */
-     const jwt = await ensureAuth();
+      /* 1. get/refresh JWT */
+      const jwt = await ensureAuth();
  
-     /* 2. upload JSON trace */
-     const res = await fetch(`${import.meta.env.VITE_API_URL}/workflows`, {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-         'Authorization': `Bearer ${jwt}`,
-       },
-       body: JSON.stringify({ json: msg.data }),
-     });
+      /* 2. we already have the latest trace in memory – a() assembles it */
+      const workflow = await broadcastWorkflowDataUpdate();
  
-     if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/workflows`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({ json: workflow }),
+      });
  
-     const { id } = await res.json();
+      if (!res.ok) throw new Error(`Backend returned ${res.status}`);
  
-     /* 3. open editor page */
-     chrome.tabs.create({
-       url: `${import.meta.env.VITE_APP_ORIGIN}/workflows/${id}`,
-     });
+      const { id } = await res.json();
+ 
+      /* 3. open editor page */
+      chrome.tabs.create({
+        url: `${import.meta.env.VITE_APP_ORIGIN}/workflows/${id}`,
+      });
     } catch (err) {
       console.error('[workflow-use] upload failed:', err);
       chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'icon.png',
+        iconUrl: chrome.runtime.getURL('icon/48.png'),
         title: 'Workflow upload failed',
         message: String(err),
       });
     }
   });
+
+  // --- Register content script for all pages ---
+  // We need to do this to be able to listen to events from all tabs.
 });
