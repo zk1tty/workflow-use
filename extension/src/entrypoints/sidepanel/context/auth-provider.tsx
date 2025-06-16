@@ -2,8 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
     ensureAuth, 
     signOut as supabaseSignOut,
-    loadJwt, 
-    isExpired,
     authClient
 } from '@/lib/auth';
 import type { AuthChangeEvent, Session } from '@supabase/auth-js';
@@ -19,61 +17,64 @@ const AuthContext = createContext<AuthCtx | undefined>(undefined);
 export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [isAuthenticated, setAuth] = useState<boolean | null>(null);
 
-  /* ── watch Supabase session ───────────────────────────────────────── */
+  /* ── watch Supabase session and restore on mount ──────────────────── */
   useEffect(() => {
-    // initial load
-    authClient.getSession().then(({ data }: { data: { session: Session | null } }) => setAuth(!!data.session));
+    let mounted = true;
 
-    // live updates
+    // Initial session check and restore
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await authClient.getSession();
+        console.info("[auth-provider] initial session check:", { hasSession: !!session });
+        
+        if (mounted) {
+          setAuth(!!session);
+        }
+      } catch (err) {
+        console.error("[auth-provider] failed to get initial session:", err);
+        if (mounted) {
+          setAuth(false);
+        }
+      }
+    };
+
+    // Start initialization
+    initializeAuth();
+
+    // Listen for auth state changes
     const { data: sub } = authClient.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      setAuth(!!session);
+      console.info("[auth-provider] auth state changed:", { event: _event, hasSession: !!session });
+      if (mounted) {
+        setAuth(!!session);
+      }
     });
 
     // Listen for explicit success message from background script after OAuth
     const handler = (msg: any) => {
       if (msg.type === 'AUTH_SUCCESS') {
+        console.info("[auth-provider] received AUTH_SUCCESS message");
         setAuth(true);
       }
     };
     chrome.runtime.onMessage.addListener(handler);
 
     return () => {
+      mounted = false;
       chrome.runtime.onMessage.removeListener(handler);
       if (sub?.subscription) {
         sub.subscription.unsubscribe();
       }
     };
   }, []);
-  /* ── restore cached JWT on first paint ─────────────────────────────── */
-  useEffect(() => {
-    (async () => {
-    const jwt = await loadJwt();
-    if (jwt && !isExpired(jwt)) {
-        // hydrate the in-memory Supabase client so onAuthStateChange
-        // fires like a normal interactive login
-        await authClient.setSession({
-        access_token: jwt,
-        token_type: "bearer",
-        expires_in: 3600,
-        refresh_token: "",
-        user: {} as any,
-        });
-        setAuth(true);
-    }
-    })();
-    }, []);
-  
 
   /* ── public api ───────────────────────────────────────────────────── */
   const signIn = async () => {
     try {
       const token = await ensureAuth();
-      // 1. hand the token to Supabase so SIGNED_IN is emitted
-      await authClient.setSession({
-        access_token: token,
-        refresh_token: ""
-      });
-      // 2. or (even simpler) update React state directly
+      console.info("[auth-provider] sign in successful, token received");
+      
+      // Update React state immediately for better UX
+      // The session should already be set by ensureAuth(), but we update state for immediate feedback
       setAuth(true);
     } catch (err) {
       console.error("Sign in failed:", err);
@@ -87,8 +88,15 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   };
 
   const signOut = async () => {
-    await supabaseSignOut();
-    setAuth(false); // Update state immediately for better UX
+    try {
+      await supabaseSignOut();
+      console.info("[auth-provider] sign out successful");
+      setAuth(false); // Update state immediately for better UX
+    } catch (err) {
+      console.error("[auth-provider] sign out failed:", err);
+      // Still update state to false even if signOut failed
+      setAuth(false);
+    }
   };
 
   return (

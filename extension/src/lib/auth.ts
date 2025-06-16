@@ -1,5 +1,5 @@
 /**
- * auth.ts – Supabase auth helper for the workflow-use Chrome extension
+ * auth.ts – Supabase auth helper for Chrome extension
  * --------------------------------------------------
  * This is the **single** source‑of‑truth auth helper used by background, popup &
  * side‑panel.  It adds a pile of `console.info` statements so you can see the
@@ -9,48 +9,27 @@
  */
 
 import { AuthClient } from "@supabase/auth-js";
+import { createChromeStorageAdapter } from "./chrome-storage-adapter";
+import { debugStorageContents, debugSupabaseSession } from "./storage-debug";
 
 // ────────────────────────────────────────────────────────────────────────────────
 // Single source‑of‑truth auth helper used by background, popup & side‑panel.
 // Adds *very* chatty console output so you can follow every branch.                
 // ────────────────────────────────────────────────────────────────────────────────
 
-const SUPABASE_URL = "https://dmgtsseqqsiyuuzhdxnn.supabase.co";
-const SUPABASE_ANON_KEY =
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://dmgtsseqqsiyuuzhdxnn.supabase.co";
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZ3Rzc2VxcXNpeXV1emhkeG5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3MzE4ODIsImV4cCI6MjA2NTMwNzg4Mn0.e5bQXtdRsPY31fEp2xextWC4QKYUcAvj77hEDVZHuZw";
-const JWT_KEY = "workflow‑use:jwt";
 
-// Slimmer bundle than the full Supabase client
+// AuthClient with proper chrome.storage adapter for automatic session persistence
 const supabase = new AuthClient({
   url: `${SUPABASE_URL}/auth/v1`,
   headers: { apikey: SUPABASE_ANON_KEY },
-  persistSession: false,
+  persistSession: true,  // Enable automatic session persistence
+  storage: createChromeStorageAdapter()  // Use proper Chrome storage adapter
 });
 
 // ───────────────────────────────── helpers ─────────────────────────────────────
-
-function decodeExp(jwt: string): number {
-  try {
-    const payload = JSON.parse(atob(jwt.split(".")[1]));
-    return payload.exp ?? 0;
-  } catch {
-    return 0;
-  }
-}
-
-export function isExpired(jwt: string): boolean {
-  const exp = decodeExp(jwt);
-  const now = Date.now() / 1000;
-  return exp - now < 30; // treat "<30 s left" as already expired
-}
-
-async function storeJwt(token: string) {
-  await chrome.storage.local.set({ [JWT_KEY]: token });
-}
-export async function loadJwt(): Promise<string | undefined> {
-  const obj = await chrome.storage.local.get(JWT_KEY);
-  return obj[JWT_KEY];
-}
 
 // helper so we can pick up chrome.runtime.lastError *reliably*
 function launchWebAuth(url: string): Promise<string> {
@@ -80,35 +59,111 @@ export async function ensureAuth(): Promise<string> {
   const started = Date.now();
   console.info("[auth] ensureAuth() • start ─────────────────────────");
 
-  // 1. reuse stored token ──────────────────────────────────────────────
-  let token = await loadJwt();
-  console.info("[auth] stored JWT:", token?.slice(0, 8), "expired?", token ? isExpired(token) : "n/a");
-  if (token && !isExpired(token)) {
-    console.info("[auth] ✓ using stored token (still valid)");
-    console.info(`[auth] done in ${Date.now() - started} ms`);
-    return token;
+  // 🔍 DEBUG: Show what's currently in storage
+  await debugStorageContents();
+  await debugSupabaseSession();
+
+  // 1. Check for existing session ──────────────────────────────────────
+  try {
+    const { data: { session }, error } = await supabase.getSession();
+    console.info("[auth] getSession() result:", { 
+      hasSession: !!session, 
+      hasAccessToken: !!session?.access_token,
+      hasRefreshToken: !!session?.refresh_token,
+      expiresAt: session?.expires_at ? new Date(session.expires_at * 1000) : null,
+      error 
+    });
+    
+    if (session?.access_token) {
+      // Validate token is not expired
+      const now = Math.floor(Date.now() / 1000);
+      const isExpired = session.expires_at ? session.expires_at < now : false;
+      
+      if (!isExpired) {
+        console.info("[auth] ✅ using existing valid session");
+        console.info(`[auth] ✅ token expires in ${session.expires_at ? Math.floor((session.expires_at - now) / 60) : 'unknown'} minutes`);
+        console.info(`[auth] done in ${Date.now() - started} ms`);
+        return session.access_token;
+      } else {
+        console.warn("[auth] ⚠️ existing session is expired, will attempt refresh");
+      }
+    } else {
+      console.warn("[auth] ⚠️ no access token in session");
+    }
+  } catch (err) {
+    console.error("[auth] ❌ getSession() threw", err);
   }
 
-  // 2. silent refresh ─────────────────────────────────────────────────
+  // 2. Silent refresh ─────────────────────────────────────────────────
   try {
     console.info("[auth] attempting refreshSession() …");
     const { data, error } = await supabase.refreshSession();
-    console.info("[auth] refreshSession() result:", { hasSession: !!data?.session, error });
+    console.info("[auth] refreshSession() result:", { 
+      hasSession: !!data?.session, 
+      hasAccessToken: !!data?.session?.access_token,
+      error 
+    });
 
     const refreshed = data?.session?.access_token;
     if (refreshed) {
-      console.info("[auth] ✓ got new token from refresh");
-      await storeJwt(refreshed);
-      console.info(`[auth] done in ${Date.now() - started} ms`);
+      console.info("[auth] ✅ got new token from refresh");
+      console.info(`[auth] done in ${Date.now() - started} ms`);
       return refreshed;
     }
-    if (error) console.warn("[auth] refreshSession() error", error);
+    if (error) console.warn("[auth] ⚠️ refreshSession() error", error);
   } catch (err) {
-    console.error("[auth] refreshSession() threw", err);
+    console.error("[auth] ❌ refreshSession() threw", err);
   }
 
-  // 3. interactive OAuth ──────────────────────────────────────────────
-  const redirectUrl = chrome.identity.getRedirectURL();
+  // 2.5. FALLBACK: Direct storage check ─────────────────────────────────
+  try {
+    console.info("[auth] 🔍 attempting direct storage fallback...");
+    const storageAdapter = createChromeStorageAdapter();
+    
+    // Check for any stored session data
+    const possibleKeys = [
+      'supabase.auth.token',
+      'sb-dmgtsseqqsiyuuzhdxnn-auth-token',
+      'supabase.session',
+      'sb-auth-token'
+    ];
+    
+    for (const key of possibleKeys) {
+      const stored = await storageAdapter.getItem(key);
+      if (stored) {
+        console.info(`[auth] 🔍 found stored data with key: ${key}`);
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.access_token) {
+            // Validate expiration
+            const now = Math.floor(Date.now() / 1000);
+            const isExpired = parsed.expires_at ? parsed.expires_at < now : false;
+            
+            if (!isExpired) {
+              console.info("[auth] ✅ using fallback stored token");
+              // Try to restore the session
+              await supabase.setSession({
+                access_token: parsed.access_token,
+                refresh_token: parsed.refresh_token || ''
+              });
+              return parsed.access_token;
+            } else {
+              console.warn("[auth] ⚠️ fallback token is expired");
+            }
+          }
+        } catch (parseErr) {
+          console.warn("[auth] ⚠️ failed to parse stored data", parseErr);
+        }
+      }
+    }
+    console.info("[auth] 🔍 no valid fallback tokens found");
+  } catch (err) {
+    console.error("[auth] ❌ direct storage fallback failed", err);
+  }
+
+  // 3. Interactive OAuth ──────────────────────────────────────────────
+  // Use localhost for universal compatibility across all development extension IDs
+  const redirectUrl = "http://localhost:3000";
   console.info("[auth] starting OAuth flow – redirectURL:", redirectUrl);
 
   let oauthUrl: string;
@@ -141,22 +196,41 @@ export async function ensureAuth(): Promise<string> {
 
   const qs = finalRedirect.split("#")[1] ?? "";
   const accessToken = new URLSearchParams(qs).get("access_token");
-  console.info("[auth] extracted access_token:", accessToken?.slice(0, 8));
+  const refreshToken = new URLSearchParams(qs).get("refresh_token") || "";
+  console.info("[auth] extracted tokens:", { 
+    hasAccessToken: !!accessToken,
+    hasRefreshToken: !!refreshToken
+  });
+  
   if (!accessToken) throw new Error("access_token not returned from OAuth flow");
 
-  await storeJwt(accessToken);
+  // Set the session in the AuthClient (it will handle storage automatically)
+  try {
+    await supabase.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
+    console.info("[auth] session set successfully");
+  } catch (err) {
+    console.error("[auth] failed to set session", err);
+  }
+
   console.info("[auth] token stored – broadcasting AUTH_SUCCESS …");
   chrome.runtime.sendMessage({ type: "AUTH_SUCCESS" }).catch(() => {});
 
-  console.info(`[auth] ensureAuth() • done in ${Date.now() - started} ms`);
-
-  // 4. token is stored at chrome.storage.
+  console.info(`[auth] ensureAuth() • done in ${Date.now() - started} ms`);
   return accessToken;
 }
 
-export function signOut() {
-  console.info("[auth] signOut() called – clearing storage");
-  return chrome.storage.local.remove(JWT_KEY);
+// Legacy functions for backward compatibility (now simplified)
+export async function loadJwt(): Promise<string | undefined> {
+  const { data: { session } } = await supabase.getSession();
+  return session?.access_token;
 }
 
-export const authClient = supabase;   // 👈 new — share the live instance
+export function signOut() {
+  console.info("[auth] signOut() called – signing out of Supabase");
+  return supabase.signOut();
+}
+
+export const authClient = supabase;   // 👈 share the live instance
