@@ -22,7 +22,7 @@ import {
   HttpRecordingStoppedEvent,
   HttpWorkflowUpdateEvent,
 } from "../lib/message-bus-types";
-import { ensureAuth } from '@lib/auth';
+import { ensureAuth } from '@/lib/auth';
 
 export default defineBackground(() => {
   // In-memory store for rrweb events, keyed by tabId
@@ -608,35 +608,44 @@ export default defineBackground(() => {
     if (msg.type !== 'STOP_RECORDING') return;
  
     try {
-      /* 1. get/refresh JWT */
-      const jwt = await ensureAuth();
- 
-      /* 2. we already have the latest trace in memory – a() assembles it */
+      /* 1. we already have the latest trace in memory – broadcastWorkflowDataUpdate() assembles it */
       const workflow = await broadcastWorkflowDataUpdate();
  
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/workflows`, {
+      // 🔄 NEW: Get session token (need to import ensureAuth if not already)
+      // Note: This might need to be refactored since background scripts have different context
+      // For now, commenting out automatic upload from background to avoid auth issues
+      console.log('🔄 [Background] Automatic upload disabled - user should use sidepanel upload');
+      
+      /* COMMENTED OUT - Use sidepanel upload instead
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/workflows/upload/session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${jwt}`,
         },
-        body: JSON.stringify({ json: workflow }),
+        body: JSON.stringify({
+          recording: workflow,
+          goal: "Automated workflow",
+          name: workflow.name ?? "Untitled workflow",
+          session_token: sessionToken, // Need to get this from auth context
+        }),
       });
  
       if (!res.ok) throw new Error(`Backend returned ${res.status}`);
  
-      const { id } = await res.json();
+      const result = await res.json();
+      const job_id = result.job_id;
  
-      /* 3. open editor page */
+      // 2. open processing page
       chrome.tabs.create({
-        url: `${import.meta.env.VITE_APP_ORIGIN}/workflows/${id}`,
+        url: `${import.meta.env.VITE_APP_ORIGIN}/wf/processing/${job_id}`,
       });
+      */
     } catch (err) {
-      console.error('[workflow-use] upload failed:', err);
+      console.error('[workflow-use] background process failed:', err);
       chrome.notifications.create({
         type: 'basic',
         iconUrl: chrome.runtime.getURL('icon/48.png'),
-        title: 'Workflow upload failed',
+        title: 'Background process failed',
         message: String(err),
       });
     }
