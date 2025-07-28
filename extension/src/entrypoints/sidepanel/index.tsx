@@ -6,43 +6,46 @@ import "@/assets/tailwind.css";
 
 import { ErrorView } from "./components/error-view";
 import { InitialView } from "./components/initial-view";
-import { LoadingView } from "./components/logina-view";
+import { LoadingView } from "./components/loading-view";
 import { RecordingView } from "./components/recording-view";
 import { StoppedView } from "./components/stopped-view";
 import { WorkflowProvider, useWorkflow } from "./context/workflow-provider";
+import { AuthProvider, useAuth } from "./context/auth-provider";
 
 const AppContent: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const { recordingStatus, isLoading, error } = useWorkflow();
 
-  if (isLoading) {
-    return <LoadingView />;
-  }
+  /* wait until both async flags have resolved */
+  if (isAuthenticated === null || isLoading) return <LoadingView />;
+  if (error) return <ErrorView />;
 
-  if (error) {
-    return <ErrorView />;
-  }
+  /* not signed-in → always show the initial view */
+  if (!isAuthenticated) return <InitialView />;
 
+  /* signed-in → fall through to recorder states */
   switch (recordingStatus) {
     case "recording":
       return <RecordingView />;
     case "stopped":
       return <StoppedView />;
-    case "idle":
     default:
-      return <InitialView />;
+      return <InitialView />; // idle
   }
 };
 
 const SidepanelApp: React.FC = () => {
   return (
     <React.StrictMode>
-      <WorkflowProvider>
-        <div className="h-screen flex flex-col">
-          <main className="flex-grow overflow-auto">
-            <AppContent />
-          </main>
-        </div>
-      </WorkflowProvider>
+      <AuthProvider>
+        <WorkflowProvider>
+          <div className="h-screen flex flex-col">
+            <main className="flex-grow overflow-auto">
+              <AppContent />
+            </main>
+          </div>
+        </WorkflowProvider>
+      </AuthProvider>
     </React.StrictMode>
   );
 };

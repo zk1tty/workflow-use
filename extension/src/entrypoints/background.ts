@@ -22,6 +22,7 @@ import {
   HttpRecordingStoppedEvent,
   HttpWorkflowUpdateEvent,
 } from "../lib/message-bus-types";
+import { ensureAuth } from '@/lib/auth';
 
 export default defineBackground(() => {
   // In-memory store for rrweb events, keyed by tabId
@@ -33,7 +34,7 @@ export default defineBackground(() => {
   let isRecordingEnabled = true; // Default to disabled (OFF)
   let lastWorkflowHash: string | null = null; // Cache for the last logged workflow hash
 
-  const PYTHON_SERVER_ENDPOINT = "http://127.0.0.1:7331/event";
+  const PYTHON_SERVER_ENDPOINT = "http://127.0.0.1:8000/event";
 
   // Hashing function using SubtleCrypto (SHA-256)
   async function calculateSHA256(str: string): Promise<string> {
@@ -530,10 +531,15 @@ export default defineBackground(() => {
       console.log(
         `Sending initial status (${isRecordingEnabled}) to tab ${sender.tab.id}`
       );
-      sendResponse({ isRecordingEnabled });
+      // This response must be sent async, and we must return true to
+      // keep the message channel open for the sendResponse call.
+      setTimeout(() => {
+        sendResponse({ isRecordingEnabled });
+      }, 50);
+      return true; // Keep message port open for async response
     }
 
-    // --- Removed Handlers ---
+    // --- TODO: Removed Handlers ---
     // else if (message.type === "CLEAR_RECORDING_DATA") { ... } // Now handled by START_RECORDING
     // else if (message.type === "GET_RECORDING_STATUS") { ... } // Sidepanel uses GET_RECORDING_DATA
     // else if (message.type === "TOGGLE_RECORDING") { ... } // Replaced by START/STOP
@@ -594,4 +600,57 @@ export default defineBackground(() => {
   chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: true })
     .catch((error) => console.error("Failed to set panel behavior:", error));
+
+  
+  // --- NEW: Upload JSON to backend when we receive the STOP_RECORDING event ---
+  chrome.runtime.onMessage.addListener(async (msg) => {
+    // the side-panel sends this when the user clicks "Download JSON"
+    if (msg.type !== 'STOP_RECORDING') return;
+ 
+    try {
+      /* 1. we already have the latest trace in memory – broadcastWorkflowDataUpdate() assembles it */
+      const workflow = await broadcastWorkflowDataUpdate();
+ 
+      // 🔄 NEW: Get session token (need to import ensureAuth if not already)
+      // Note: This might need to be refactored since background scripts have different context
+      // For now, commenting out automatic upload from background to avoid auth issues
+      console.log('🔄 [Background] Automatic upload disabled - user should use sidepanel upload');
+      
+      /* COMMENTED OUT - Use sidepanel upload instead
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/workflows/upload/session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recording: workflow,
+          goal: "Automated workflow",
+          name: workflow.name ?? "Untitled workflow",
+          session_token: sessionToken, // Need to get this from auth context
+        }),
+      });
+ 
+      if (!res.ok) throw new Error(`Backend returned ${res.status}`);
+ 
+      const result = await res.json();
+      const job_id = result.job_id;
+ 
+      // 2. open processing page
+      chrome.tabs.create({
+        url: `${import.meta.env.VITE_APP_ORIGIN}/wf/processing/${job_id}`,
+      });
+      */
+    } catch (err) {
+      console.error('[workflow-use] background process failed:', err);
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: chrome.runtime.getURL('icon/48.png'),
+        title: 'Background process failed',
+        message: String(err),
+      });
+    }
+  });
+
+  // --- Register content script for all pages ---
+  // We need to do this to be able to listen to events from all tabs.
 });
